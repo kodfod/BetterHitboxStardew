@@ -6,5 +6,5 @@
   "UniqueID": "kodfod.hitbox",
   "EntryDll": "BetterHitboxStardew.dll",
   "MinimumApiVersion": "2.10.0",
-  "UpdateKeys": []
+  "UpdateKeys": ["GitHub:kodfod/BetterHitboxStardew"]
 }
