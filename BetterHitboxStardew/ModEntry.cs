@@ -12,36 +12,31 @@ namespace BetterHitboxStardew
         public override void Entry(IModHelper helper)
         {
             helper.Events.Input.ButtonPressed += InputEvents_ButtonPressed;
+            helper.Events.Input.CursorMoved += Input_CursorMoved;
         }
 
-        private double GetAngle(Vector2 screenPixels)
+        // Update the hitbox when further away from character
+        private void Input_CursorMoved(object sender, CursorMovedEventArgs e)
         {
-            Vector2 absolutePixels = screenPixels + new Vector2(Game1.viewport.X, Game1.viewport.Y);
-            Vector2 position = new Vector2((int)Game1.player.Position.X + 30, (int)Game1.player.Position.Y);
-            Vector2 delta = absolutePixels - position;
-            double angle = Math.Atan2(-delta.Y, delta.X);
-            double angle2;
-
-            if (angle < 0.0)
+            if (!Context.IsWorldReady || !Context.IsPlayerFree || Game1.player.isCharging || Game1.player.isRidingHorse() || Game1.player.UsingTool)
             {
-                angle2 = 2 * Math.PI + angle;
+                return;
             }
-            else
-            {
-                angle2 = angle;
-            }
-            angle2 = (angle2 / (2.0 * Math.PI)) * 360;
-            return angle2;
+            UpdateGrabTileAndCursor(e.NewPosition);
         }
 
+        // Update the hitbox when button is pressed
         private void InputEvents_ButtonPressed(object sender, ButtonPressedEventArgs e)
         {
             if (!Context.IsWorldReady || !Context.IsPlayerFree || !(e.Button == SButton.MouseLeft) || Game1.player.isCharging || Game1.player.isRidingHorse() || Game1.player.UsingTool)
             {
                 return;
             }
+            UpdateGrabTileAndCursor(e.Cursor);
+        }
 
-            ICursorPosition cursor = e.Cursor;
+        private void UpdateGrabTileAndCursor(ICursorPosition cursor)
+        {
 
             double angle = GetAngle(cursor.ScreenPixels);
             Vector2 grabTile = Game1.player.getTileLocation();
@@ -98,5 +93,24 @@ namespace BetterHitboxStardew
             Game1.player.FacingDirection = dir;
         }
 
+        private double GetAngle(Vector2 screenPixels)
+        {
+            Vector2 absolutePixels = screenPixels + new Vector2(Game1.viewport.X, Game1.viewport.Y);
+            Vector2 position = new Vector2((int)Game1.player.Position.X + 30, (int)Game1.player.Position.Y);
+            Vector2 delta = absolutePixels - position;
+            double angle = Math.Atan2(-delta.Y, delta.X);
+            double angle2;
+
+            if (angle < 0.0)
+            {
+                angle2 = 2 * Math.PI + angle;
+            }
+            else
+            {
+                angle2 = angle;
+            }
+            angle2 = (angle2 / (2.0 * Math.PI)) * 360;
+            return angle2;
+        }
     }
 }
